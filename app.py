@@ -94,13 +94,14 @@ if st.button("Calculate Sell Price"):
     st.write(f"Volatility Premium: ${vol_premium:,.2f}")
     st.write(f"Skew Premium: ${skew_premium:,.2f}")
     st.write(f"Chaos Premium: ${chaos_premium:,.2f}")
-    st.write(f"Chaos Premium as % of Upper Spread: {chaos_pct_of_spread:.2f}%")
     st.write(f"Chaos Premium as % of Lane Avg: {chaos_pct_of_avg:.2f}%")
-    
-    # Visual Lane Condition Chart
-    st.subheader("Lane Condition Overview")
-    fig, ax = plt.subplots()
-    ax.bar(['Low', 'Avg', 'High'], [dat_low, dat_avg, dat_high], color=['#6c9cde', '#8bc34a', '#e57373'])
-    ax.set_ylabel('Rate ($)')
-    ax.set_title('DAT Lane Rate Distribution')
-    st.pyplot(fig)
+    st.write(f"Chaos Premium as % of Upper Spread: {chaos_pct_of_spread:.2f}%")
+
+    # Markup Composition Pie Chart
+    st.subheader("Markup Composition")
+    labels = ['Base Markup', 'Volatility Premium', 'Skew Premium']
+    sizes = [base_markup, vol_premium, skew_premium]
+    fig2, ax2 = plt.subplots()
+    ax2.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
+    ax2.axis('equal')
+    st.pyplot(fig2)

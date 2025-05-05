@@ -93,5 +93,5 @@ if st.button("Calculate Sell Price"):
     st.write(f"Volatility Premium: ${vol_premium:,.2f}")
     st.write(f"Skew Premium: ${skew_premium:,.2f}")
     st.write(f"Chaos Premium: ${chaos_premium:,.2f}")
-    st.write(f"Chaos Premium as % of Lane Avg: {chaos_pct_of_avg:.2f}%")
     st.write(f"Chaos Premium as % of Upper Spread: {chaos_pct_of_spread:.2f}%")
+    st.write(f"Chaos Premium as % of Lane Avg: {chaos_pct_of_avg:.2f}%")

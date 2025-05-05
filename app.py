@@ -1,5 +1,6 @@
 import streamlit as st
 import numpy as np
+import matplotlib.pyplot as plt
 
 st.title("MTS-Based Freight Pricing Calculator")
 
@@ -95,3 +96,11 @@ if st.button("Calculate Sell Price"):
     st.write(f"Chaos Premium: ${chaos_premium:,.2f}")
     st.write(f"Chaos Premium as % of Upper Spread: {chaos_pct_of_spread:.2f}%")
     st.write(f"Chaos Premium as % of Lane Avg: {chaos_pct_of_avg:.2f}%")
+    
+    # Visual Lane Condition Chart
+    st.subheader("Lane Condition Overview")
+    fig, ax = plt.subplots()
+    ax.bar(['Low', 'Avg', 'High'], [dat_low, dat_avg, dat_high], color=['#6c9cde', '#8bc34a', '#e57373'])
+    ax.set_ylabel('Rate ($)')
+    ax.set_title('DAT Lane Rate Distribution')
+    st.pyplot(fig)

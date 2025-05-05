@@ -15,36 +15,55 @@ if st.button("Calculate Sell Price"):
     volatility = (dat_high - dat_low) / dat_avg
     skew = (dat_high - dat_avg) / (dat_avg - dat_low) if (dat_avg - dat_low) != 0 else 0
 
-    # MTS Score
-    mts = 0.6 * volatility + 0.4 * skew
+    # Score Scaling (0–1 range for both)
+    volatility_score = volatility
+    skew_score = skew
 
-    # Volatility % Scaling Logic
-    if mts * 100 <= 75:
-        volatility_pct = 0.001
-    elif mts * 100 <= 150:
-        volatility_pct = 0.002
-    elif mts * 100 <= 225:
-        volatility_pct = 0.003
-    elif mts * 100 <= 300:
-        volatility_pct = 0.004
+    # Premium % based on Volatility Score
+    if volatility_score <= 0.1:
+        vol_pct = 0.01
+    elif volatility_score <= 0.2:
+        vol_pct = 0.02
+    elif volatility_score <= 0.3:
+        vol_pct = 0.03
+    elif volatility_score <= 0.4:
+        vol_pct = 0.04
     else:
-        volatility_pct = 0.005
+        vol_pct = 0.05
 
+    # Premium % based on Skew Score
+    if skew_score <= 0.5:
+        skew_pct = 0.00
+    elif skew_score <= 1.0:
+        skew_pct = 0.01
+    elif skew_score <= 1.5:
+        skew_pct = 0.02
+    elif skew_score <= 2.0:
+        skew_pct = 0.03
+    else:
+        skew_pct = 0.04
+
+    # Markup Calculations
     upper_spread = dat_high - dat_avg
     base_markup = base_markup_pct * r_buy
-    volatility_impact = volatility_pct * upper_spread
-    sell_price = r_buy + base_markup + volatility_impact
+    vol_premium = vol_pct * upper_spread
+    skew_premium = skew_pct * upper_spread
+    chaos_premium = vol_premium + skew_premium
+
+    sell_price = r_buy + base_markup + chaos_premium
     total_markup_pct = ((sell_price - r_buy) / r_buy) * 100
 
     # Output
     st.subheader("Results")
-    st.metric(label="**Sell Price**", value=f"${sell_price:,.2f}")
+    st.write(f"Sell Price: ${sell_price:,.2f}")
     st.write(f"R_buy (DAT Avg): ${r_buy:,.2f}")
     st.write(f"Volatility: {volatility:.3f}")
     st.write(f"Skew: {skew:.3f}")
-    st.write(f"MTS: {mts:.3f} ({mts*100:.1f})")
-    st.write(f"Volatility % Applied: {volatility_pct*100:.2f}%")
+    st.write(f"Volatility % Applied: {vol_pct:.2%}")
+    st.write(f"Skew % Applied: {skew_pct:.2%}")
     st.write(f"Upper Spread: ${upper_spread:,.2f}")
     st.write(f"Base Markup: ${base_markup:,.2f}")
-    st.write(f"Chaos Premium: ${volatility_impact:,.2f}")
-    st.metric(label="**Total Markup %**", value=f"{total_markup_pct:.2f}%")
+    st.write(f"Volatility Premium: ${vol_premium:,.2f}")
+    st.write(f"Skew Premium: ${skew_premium:,.2f}")
+    st.write(f"Chaos Premium: ${chaos_premium:,.2f}")
+    st.write(f"Total Markup %: {total_markup_pct:.2f}%")

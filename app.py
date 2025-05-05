@@ -1,5 +1,4 @@
 import streamlit as st
-import matplotlib.pyplot as plt
 import numpy as np
 
 st.title("MTS-Based Freight Pricing Calculator")
@@ -76,6 +75,7 @@ if st.button("Calculate Sell Price"):
     sell_price = r_buy + base_markup + chaos_premium
     total_markup_pct = ((sell_price - r_buy) / r_buy) * 100
     chaos_pct_of_avg = (chaos_premium / r_buy) * 100
+    chaos_pct_of_spread = (chaos_premium / upper_spread) * 100 if upper_spread > 0 else 0
 
     # Output
     st.subheader("Results")
@@ -94,25 +94,4 @@ if st.button("Calculate Sell Price"):
     st.write(f"Skew Premium: ${skew_premium:,.2f}")
     st.write(f"Chaos Premium: ${chaos_premium:,.2f}")
     st.write(f"Chaos Premium as % of Lane Avg: {chaos_pct_of_avg:.2f}%")
-
-    # Chart of premium scale across sample MTS tiers
-    st.subheader("Chaos Premium Scaling Preview")
-    spreads = np.linspace(100, 2000, 10)
-    mts_scores = np.array([0.1, 0.3, 0.5, 1.0, 1.5, 2.0, 2.5])
-
-    fig, ax = plt.subplots()
-    for score in mts_scores:
-        if score >= 2.0:
-            total_pct = 0.20
-        elif score >= 1.0:
-            total_pct = 0.10
-        else:
-            total_pct = 0.05
-        total_premium = total_pct * dat_avg * np.ones_like(spreads)
-        ax.plot(spreads, total_premium, label=f"MTS {score:.1f}")
-
-    ax.set_title("Chaos Premium Scaling by MTS Score")
-    ax.set_xlabel("Upper Spread ($)")
-    ax.set_ylabel("Chaos Premium ($)")
-    ax.legend()
-    st.pyplot(fig)
+    st.write(f"Chaos Premium as % of Upper Spread: {chaos_pct_of_spread:.2f}%")

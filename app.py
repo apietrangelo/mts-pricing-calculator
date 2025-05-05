@@ -56,13 +56,13 @@ if st.button("Calculate Sell Price"):
     else:
         skew_pct = 0.06
 
-    # Limit combined premium to max_chaos_pct of upper spread
+    # Limit combined premium to max_chaos_pct of DAT average
     upper_spread = dat_high - dat_avg
     base_markup = base_markup_pct * r_buy
     raw_vol_premium = vol_pct * upper_spread
     raw_skew_premium = skew_pct * upper_spread
     raw_chaos_premium = raw_vol_premium + raw_skew_premium
-    capped_chaos_premium = min(raw_chaos_premium, max_chaos_pct * upper_spread)
+    capped_chaos_premium = min(raw_chaos_premium, max_chaos_pct * dat_avg)
 
     # Split capped chaos proportionally
     if raw_chaos_premium > 0:
@@ -108,7 +108,7 @@ if st.button("Calculate Sell Price"):
             total_pct = 0.10
         else:
             total_pct = 0.05
-        total_premium = total_pct * spreads
+        total_premium = total_pct * dat_avg * np.ones_like(spreads)
         ax.plot(spreads, total_premium, label=f"MTS {score:.1f}")
 
     ax.set_title("Chaos Premium Scaling by MTS Score")

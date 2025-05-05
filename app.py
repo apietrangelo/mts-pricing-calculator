@@ -82,7 +82,7 @@ if st.button("Calculate Sell Price"):
     st.markdown(f"**Sell Price:** ${sell_price:,.2f}")
     st.markdown(f"**Total Markup %:** {total_markup_pct:.2f}%")
     st.markdown(f"**Risk Level:** {risk_level}")
-    st.markdown(f"---")
+    st.markdown("---")
     st.write(f"R_buy (DAT Avg): ${r_buy:,.2f}")
     st.write(f"Volatility: {volatility:.3f}")
     st.write(f"Skew: {skew:.3f}")

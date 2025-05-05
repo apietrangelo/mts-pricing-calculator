@@ -94,12 +94,16 @@ if st.button("Calculate Sell Price"):
     st.write(f"Volatility Premium: ${vol_premium:,.2f}")
     st.write(f"Skew Premium: ${skew_premium:,.2f}")
     st.write(f"Chaos Premium: ${chaos_premium:,.2f}")
-    st.write(f"Chaos Premium as % of Lane Avg: {chaos_pct_of_avg:.2f}%")
     st.write(f"Chaos Premium as % of Upper Spread: {chaos_pct_of_spread:.2f}%")
+    st.write(f"Chaos Premium as % of Lane Avg: {chaos_pct_of_avg:.2f}%")
 
     # Markup Composition Pie Chart
     st.subheader("Markup Composition")
-    labels = ['Base Markup', 'Volatility Premium', 'Skew Premium']
+    labels = [
+        f'Base Markup (${base_markup:,.2f})',
+        f'Volatility Premium (${vol_premium:,.2f})',
+        f'Skew Premium (${skew_premium:,.2f})'
+    ]
     sizes = [base_markup, vol_premium, skew_premium]
     fig2, ax2 = plt.subplots()
     ax2.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)

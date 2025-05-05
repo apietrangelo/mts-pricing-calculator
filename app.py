@@ -1,4 +1,6 @@
 import streamlit as st
+import matplotlib.pyplot as plt
+import numpy as np
 
 st.title("MTS-Based Freight Pricing Calculator")
 
@@ -29,19 +31,27 @@ if st.button("Calculate Sell Price"):
     elif volatility_score <= 0.4:
         vol_pct = 0.04
     else:
-        vol_pct = 0.05
+        vol_pct = 0.06  # Increased cap for high volatility
 
     # Premium % based on Skew Score
     if skew_score <= 0.5:
         skew_pct = 0.00
     elif skew_score <= 1.0:
-        skew_pct = 0.01
-    elif skew_score <= 1.5:
         skew_pct = 0.02
-    elif skew_score <= 2.0:
+    elif skew_score <= 1.5:
         skew_pct = 0.03
-    else:
+    elif skew_score <= 2.0:
         skew_pct = 0.04
+    else:
+        skew_pct = 0.06  # Increased cap for high skew
+
+    # Risk Level Indicator
+    if volatility_score > 0.4 or skew_score > 2.0:
+        risk_level = "High Risk"
+    elif volatility_score > 0.2 or skew_score > 1.0:
+        risk_level = "Moderate Risk"
+    else:
+        risk_level = "Low Risk"
 
     # Markup Calculations
     upper_spread = dat_high - dat_avg
@@ -55,7 +65,10 @@ if st.button("Calculate Sell Price"):
 
     # Output
     st.subheader("Results")
-    st.write(f"Sell Price: ${sell_price:,.2f}")
+    st.markdown(f"**Sell Price:** ${sell_price:,.2f}")
+    st.markdown(f"**Total Markup %:** {total_markup_pct:.2f}%")
+    st.markdown(f"**Risk Level:** {risk_level}")
+    st.markdown(f"---")
     st.write(f"R_buy (DAT Avg): ${r_buy:,.2f}")
     st.write(f"Volatility: {volatility:.3f}")
     st.write(f"Skew: {skew:.3f}")
@@ -66,4 +79,21 @@ if st.button("Calculate Sell Price"):
     st.write(f"Volatility Premium: ${vol_premium:,.2f}")
     st.write(f"Skew Premium: ${skew_premium:,.2f}")
     st.write(f"Chaos Premium: ${chaos_premium:,.2f}")
-    st.write(f"Total Markup %: {total_markup_pct:.2f}%")
+
+    # Chart of premium scale across sample MTS tiers
+    st.subheader("Chaos Premium Scaling Preview")
+    spreads = np.linspace(100, 2000, 10)
+    mts_scores = np.array([0.1, 0.3, 0.5, 1.0, 1.5, 2.0, 2.5])
+
+    fig, ax = plt.subplots()
+    for score in mts_scores:
+        vol_pct = 0.06 if score > 0.4 else 0.04
+        skew_pct = 0.06 if score > 2.0 else 0.04
+        total_premium = (vol_pct + skew_pct) * spreads
+        ax.plot(spreads, total_premium, label=f"MTS {score:.1f}")
+
+    ax.set_title("Chaos Premium Scaling by MTS Score")
+    ax.set_xlabel("Upper Spread ($)")
+    ax.set_ylabel("Chaos Premium ($)")
+    ax.legend()
+    st.pyplot(fig)

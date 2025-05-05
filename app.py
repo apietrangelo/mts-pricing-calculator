@@ -32,29 +32,29 @@ if st.button("Calculate Sell Price"):
         risk_level = "Low Risk"
         max_chaos_pct = 0.05
 
-    # Premium % based on Volatility Score
+    # Premium % based on Volatility Score (DOUBLED)
     if volatility_score <= 0.1:
-        vol_pct = 0.01
-    elif volatility_score <= 0.2:
         vol_pct = 0.02
-    elif volatility_score <= 0.3:
-        vol_pct = 0.03
-    elif volatility_score <= 0.4:
+    elif volatility_score <= 0.2:
         vol_pct = 0.04
-    else:
+    elif volatility_score <= 0.3:
         vol_pct = 0.06
+    elif volatility_score <= 0.4:
+        vol_pct = 0.08
+    else:
+        vol_pct = 0.12
 
-    # Premium % based on Skew Score
+    # Premium % based on Skew Score (DOUBLED)
     if skew_score <= 0.5:
         skew_pct = 0.00
     elif skew_score <= 1.0:
-        skew_pct = 0.02
-    elif skew_score <= 1.5:
-        skew_pct = 0.03
-    elif skew_score <= 2.0:
         skew_pct = 0.04
-    else:
+    elif skew_score <= 1.5:
         skew_pct = 0.06
+    elif skew_score <= 2.0:
+        skew_pct = 0.08
+    else:
+        skew_pct = 0.12
 
     # Limit combined premium to max_chaos_pct of DAT average
     upper_spread = dat_high - dat_avg

@@ -21,6 +21,17 @@ if st.button("Calculate Sell Price"):
     volatility_score = volatility
     skew_score = skew
 
+    # Risk Level Indicator
+    if volatility_score > 0.4 or skew_score > 2.0:
+        risk_level = "High Risk"
+        max_chaos_pct = 0.20
+    elif volatility_score > 0.2 or skew_score > 1.0:
+        risk_level = "Moderate Risk"
+        max_chaos_pct = 0.10
+    else:
+        risk_level = "Low Risk"
+        max_chaos_pct = 0.05
+
     # Premium % based on Volatility Score
     if volatility_score <= 0.1:
         vol_pct = 0.01
@@ -31,7 +42,7 @@ if st.button("Calculate Sell Price"):
     elif volatility_score <= 0.4:
         vol_pct = 0.04
     else:
-        vol_pct = 0.06  # Increased cap for high volatility
+        vol_pct = 0.06
 
     # Premium % based on Skew Score
     if skew_score <= 0.5:
@@ -43,25 +54,28 @@ if st.button("Calculate Sell Price"):
     elif skew_score <= 2.0:
         skew_pct = 0.04
     else:
-        skew_pct = 0.06  # Increased cap for high skew
+        skew_pct = 0.06
 
-    # Risk Level Indicator
-    if volatility_score > 0.4 or skew_score > 2.0:
-        risk_level = "High Risk"
-    elif volatility_score > 0.2 or skew_score > 1.0:
-        risk_level = "Moderate Risk"
-    else:
-        risk_level = "Low Risk"
-
-    # Markup Calculations
+    # Limit combined premium to max_chaos_pct of upper spread
     upper_spread = dat_high - dat_avg
     base_markup = base_markup_pct * r_buy
-    vol_premium = vol_pct * upper_spread
-    skew_premium = skew_pct * upper_spread
-    chaos_premium = vol_premium + skew_premium
+    raw_vol_premium = vol_pct * upper_spread
+    raw_skew_premium = skew_pct * upper_spread
+    raw_chaos_premium = raw_vol_premium + raw_skew_premium
+    capped_chaos_premium = min(raw_chaos_premium, max_chaos_pct * upper_spread)
 
+    # Split capped chaos proportionally
+    if raw_chaos_premium > 0:
+        vol_premium = capped_chaos_premium * (raw_vol_premium / raw_chaos_premium)
+        skew_premium = capped_chaos_premium * (raw_skew_premium / raw_chaos_premium)
+    else:
+        vol_premium = 0
+        skew_premium = 0
+
+    chaos_premium = vol_premium + skew_premium
     sell_price = r_buy + base_markup + chaos_premium
     total_markup_pct = ((sell_price - r_buy) / r_buy) * 100
+    chaos_pct_of_avg = (chaos_premium / r_buy) * 100
 
     # Output
     st.subheader("Results")
@@ -79,6 +93,7 @@ if st.button("Calculate Sell Price"):
     st.write(f"Volatility Premium: ${vol_premium:,.2f}")
     st.write(f"Skew Premium: ${skew_premium:,.2f}")
     st.write(f"Chaos Premium: ${chaos_premium:,.2f}")
+    st.write(f"Chaos Premium as % of Lane Avg: {chaos_pct_of_avg:.2f}%")
 
     # Chart of premium scale across sample MTS tiers
     st.subheader("Chaos Premium Scaling Preview")
@@ -87,9 +102,13 @@ if st.button("Calculate Sell Price"):
 
     fig, ax = plt.subplots()
     for score in mts_scores:
-        vol_pct = 0.06 if score > 0.4 else 0.04
-        skew_pct = 0.06 if score > 2.0 else 0.04
-        total_premium = (vol_pct + skew_pct) * spreads
+        if score >= 2.0:
+            total_pct = 0.20
+        elif score >= 1.0:
+            total_pct = 0.10
+        else:
+            total_pct = 0.05
+        total_premium = total_pct * spreads
         ax.plot(spreads, total_premium, label=f"MTS {score:.1f}")
 
     ax.set_title("Chaos Premium Scaling by MTS Score")

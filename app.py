@@ -49,12 +49,16 @@ if st.button("Calculate Sell Price"):
         origin_mci_adj = 0.015
     elif origin_mci >= 50:
         origin_mci_adj = 0.01
+    elif origin_mci <= -75:
+        origin_mci_adj = 0.01
 
     dest_mci_adj = 0
     if destination_mci >= 75:
         dest_mci_adj = -0.02
     elif destination_mci >= 50:
         dest_mci_adj = -0.01
+    elif destination_mci <= -75:
+        dest_mci_adj = 0.015
 
     # Adjusted base rate after MCI
     mci_adjustment_pct = origin_mci_adj + dest_mci_adj
@@ -144,9 +148,10 @@ if st.button("Calculate Sell Price"):
     labels = [
         f'Base Markup (${base_markup:,.2f})',
         f'Volatility Premium (${vol_premium:,.2f})',
-        f'Skew Premium (${skew_premium:,.2f})'
+        f'Skew Premium (${skew_premium:,.2f})',
+        f'MCI Adjustment (${adjusted_base_rate - base_rate:,.2f})'
     ]
-    sizes = [base_markup, vol_premium, skew_premium]
+    sizes = [base_markup, vol_premium, skew_premium, adjusted_base_rate - base_rate]
     fig2, ax2 = plt.subplots()
     ax2.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
     ax2.axis('equal')

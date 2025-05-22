@@ -10,12 +10,16 @@ dat_high = st.number_input("DAT High ($)", value=1859.00)
 dat_avg = st.number_input("DAT Average ($)", value=1640.00)
 dat_low = st.number_input("DAT Low ($)", value=1480.00)
 origin_mci = st.number_input("Origin Outbound MCI", value=50)
-destination_mci = st.number_input("Destination Outbound MCI (must click map and choose OUTBOUND for destination MCI)", value=50)
+destination_mci = st.number_input("Destination Outbound MCI (must click map and choose destination MCI)", value=50)
 
 # Section: Greenscreens Inputs (Optional)
 st.header("Greenscreens Market Data (Optional)")
 gs_avg = st.number_input("Greenscreens Average ($)", value=0.0)
 gs_confidence = st.number_input("Greenscreens Confidence Score", value=0)
+
+# Section: Lane Info
+st.header("Lane Information")
+miles = st.number_input("Total Lane Mileage", value=500)
 
 # Section: Markup Inputs
 st.header("Markup Settings")
@@ -120,7 +124,15 @@ if st.button("Calculate Sell Price"):
         vol_premium = 0
         skew_premium = 0
 
-    chaos_premium = vol_premium + skew_premium
+    # Apply mileage multiplier to chaos premium
+    if miles < 100:
+        chaos_multiplier = 0.25
+    elif miles < 250:
+        chaos_multiplier = 0.5
+    else:
+        chaos_multiplier = 1.0
+
+    chaos_premium = (vol_premium + skew_premium) * chaos_multiplier
 
     # Final Sell Price
     sell_price = adjusted_base_rate + base_markup + chaos_premium
@@ -141,17 +153,17 @@ if st.button("Calculate Sell Price"):
     st.write(f"Skew: {skew:.3f}")
     st.write(f"Volatility Premium: ${vol_premium:,.2f}")
     st.write(f"Skew Premium: ${skew_premium:,.2f}")
-    st.write(f"Chaos Premium (Capped): ${chaos_premium:,.2f}")
+    st.write(f"Chaos Premium (Capped & Scaled): ${chaos_premium:,.2f}")
 
     # Pie Chart
     st.subheader("Markup Composition")
     labels = [
         f'Base Markup (${base_markup:,.2f})',
-        f'Volatility Premium (${vol_premium:,.2f})',
-        f'Skew Premium (${skew_premium:,.2f})',
+        f'Volatility Premium (${vol_premium * chaos_multiplier:,.2f})',
+        f'Skew Premium (${skew_premium * chaos_multiplier:,.2f})',
         f'MCI Adjustment (${adjusted_base_rate - base_rate:,.2f})'
     ]
-    sizes = [base_markup, vol_premium, skew_premium, adjusted_base_rate - base_rate]
+    sizes = [base_markup, vol_premium * chaos_multiplier, skew_premium * chaos_multiplier, adjusted_base_rate - base_rate]
     fig2, ax2 = plt.subplots()
     ax2.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
     ax2.axis('equal')

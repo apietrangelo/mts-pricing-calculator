@@ -10,7 +10,7 @@ dat_high = st.number_input("DAT High ($)", value=1859.00)
 dat_avg = st.number_input("DAT Average ($)", value=1640.00)
 dat_low = st.number_input("DAT Low ($)", value=1480.00)
 origin_mci = st.number_input("Origin Outbound MCI", value=50)
-destination_mci = st.number_input("Destination Outbound MCI (must click map and choose destination MCI)", value=50)
+destination_mci = st.number_input("Destination Outbound MCI (must click map and choose OUTBOUND destination MCI)", value=50)
 
 # Section: Greenscreens Inputs (Optional)
 st.header("Greenscreens Market Data (Optional)")

@@ -41,7 +41,7 @@ if st.button("Calculate Sell Price"):
     if gs_avg > 0:
         discrepancy_pct = abs(dat_avg - gs_avg) / dat_avg * 100
         if discrepancy_pct > 20:
-            st.warning("🚨 GS and DAT differ by more than 20%. Recommend close inspection—default to DAT. Remove GS values from Calculator.")
+            st.warning("🚨 GS and DAT differ by more than 20%. Default to DAT by removing GS values from Calculator.")
         elif discrepancy_pct > 10:
             st.warning("⚠️ GS and DAT differ by more than 10%.")
 
